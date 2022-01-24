@@ -1618,7 +1618,7 @@ resizemouse(const Arg *arg)
 	if (c->isfloating || NULL == c->mon->lt[c->mon->sellt]->arrange) {
 		XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w + c->bw - 1, c->h + c->bw - 1);
 	} else {
-		selmon->mfact = (double) (ev.xmotion.x_root - selmon->mx) / (double) selmon->ww;
+		selmon->mfact = selmon->pertag->mfacts[selmon->pertag->curtag] = (double) (ev.xmotion.x_root - selmon->mx) / (double) selmon->ww;
 		arrange(selmon);
 		XWarpPointer(dpy, None, root, 0, 0, 0, 0,
 			selmon->mx + (selmon->ww * selmon->mfact),
