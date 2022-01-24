@@ -71,6 +71,17 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char *lockcmd[]  = { "slock", NULL };
+
+/* Media Keys */
+#include <X11/XF86keysym.h>
+static const char *volUp[]   = { "pamixer", "-i", "5", NULL};
+static const char *volDown[] = { "pamixer", "-d", "5", NULL};
+static const char *volMute[] = { "pamixer", "-t", NULL};
+static const char *mpdPlay[] = { "mpc", "toggle", NULL};
+static const char *mpdStop[] = { "mpc", "stop", NULL};
+static const char *mpdPrev[] = { "mpc", "prev", NULL};
+static const char *mpdNext[] = { "mpc", "next", NULL};
+
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
@@ -109,6 +120,14 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },
+	/* Media Keys */
+	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = volUp   } },
+	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = volDown } },
+	{ 0,                            XF86XK_AudioMute,        spawn, {.v = volMute } },
+	{ 0,                            XF86XK_AudioPlay,        spawn, {.v = mpdPlay } },
+	{ 0,                            XF86XK_AudioStop,        spawn, {.v = mpdStop } },
+	{ 0,                            XF86XK_AudioPrev,        spawn, {.v = mpdPrev } },
+	{ 0,                            XF86XK_AudioNext,        spawn, {.v = mpdNext } },
 };
 
 /* button definitions */
