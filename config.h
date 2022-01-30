@@ -12,7 +12,7 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;     /* 0 means no systray */
 static const int showbar            = 1;     /* 0 means no bar */
 static const int topbar             = 0;     /* 0 means bottom bar */
-static const char *fonts[]          = { "monospace:size=10" };
+static const char *fonts[]          = { "Font Awesome 5 Free:size=12", "terminus:size=12" };
 static const char dmenufont[]       = "monospace:size=10";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
@@ -72,6 +72,17 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 static const char *termcmd[]  = { "st", NULL };
 static const char *lockcmd[]  = { "slock", NULL };
 
+/* media */
+static const char *volUp[]   = { "pamixer", "-i", "5", NULL};
+static const char *volDown[] = { "pamixer", "-d", "5", NULL};
+static const char *volMute[] = { "pamixer", "-t", NULL};
+static const char *volUpdate[] = {"pkill", "-RTMIN+10", "i3blocks", NULL };
+static const char *mpdToggle[] = { "mpc", "toggle", NULL};
+
+/* misc */
+static const char *ssRect[] = { "bash", "-c", "maim -s | xclip -selection clipboard -t image/png", NULL };
+
+#include "movestack.c"
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
@@ -84,6 +95,8 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_d,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+	{ MODKEY|ShiftMask,             XK_j,      movestack,      {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_k,      movestack,      {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
@@ -110,6 +123,7 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },
+	{ 0,                            XK_Print,  spawn,          {.v = ssRect} },
 };
 
 /* button definitions */
@@ -120,6 +134,13 @@ static Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
 	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+	{ ClkStatusText,        0,              Button1,        spawn,          {.v = mpdToggle } },
+	{ ClkStatusText,        0,              Button3,        spawn,          {.v = volMute } },
+	{ ClkStatusText,        0,              Button3,        spawn,          {.v = volUpdate } },
+	{ ClkStatusText,        0,              Button5,        spawn,          {.v = volDown} },
+	{ ClkStatusText,        0,              Button5,        spawn,          {.v = volUpdate} },
+	{ ClkStatusText,        0,              Button4,        spawn,          {.v = volUp} },
+	{ ClkStatusText,        0,              Button4,        spawn,          {.v = volUpdate} },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
