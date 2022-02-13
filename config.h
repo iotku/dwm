@@ -12,8 +12,8 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;     /* 0 means no systray */
 static const int showbar            = 1;     /* 0 means no bar */
 static const int topbar             = 0;     /* 0 means bottom bar */
-static const char *fonts[]          = { "terminus:size=12", "Font Awesome 6 Free:size=12"};
-static const char dmenufont[]       = "monospace:size=10";
+static const char *fonts[]          = { "JetBrainsMonoMedium Nerd Font:size=10" };
+static const char dmenufont[]       = "JetBrainsMonoMedium Nerd Font:size=10";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -55,7 +55,6 @@ static const Layout layouts[] = {
 	{ "><>",      NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
 	{ "TTT",      bstack },
-	{ "===",      bstackhoriz },
 	{ "|M|",      centeredmaster },
 	{ ">M>",      centeredfloatingmaster },
 
@@ -106,9 +105,8 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
 	{ MODKEY,                       XK_u,      setlayout,      {.v = &layouts[3]} },
-	{ MODKEY,                       XK_o,      setlayout,      {.v = &layouts[4]} },
-	{ MODKEY|ShiftMask,             XK_m,      setlayout,      {.v = &layouts[5]} },
-	{ MODKEY|ControlMask|ShiftMask, XK_m,      setlayout,      {.v = &layouts[6]} },
+	{ MODKEY|ShiftMask,             XK_m,      setlayout,      {.v = &layouts[4]} },
+	{ MODKEY|ControlMask|ShiftMask, XK_m,      setlayout,      {.v = &layouts[5]} },
 	{ MODKEY|ShiftMask,             XK_space,  setlayout,      {0} },
 	{ MODKEY,                       XK_space,  togglefloating, {0} },
 	{ MODKEY,                       XK_r,      togglermaster,  {0} },
