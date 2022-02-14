@@ -39,6 +39,7 @@ static const Rule rules[] = {
 	{ "St",           NULL,     NULL,           0,         0,          1,           0,        -1 },
 	{ "st",           NULL,     NULL,           0,         0,          1,           0,        -1 },
 	{ "st-256color",  NULL,     NULL,           0,         0,          1,           0,        -1 },
+	{ "libreoffice",  NULL,     NULL,           0,         0,          0,           1,        -1 },
 	{ NULL,           NULL,     "Event Tester", 0,         0,          0,           1,        -1 }, /* xev */
 };
 
