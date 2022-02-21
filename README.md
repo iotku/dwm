@@ -11,6 +11,7 @@ Patches
 - [cfacts](https://dwm.suckless.org/patches/cfacts/) - Resize clients in the stack and assorted cfacts aware layouts
 - [centeredmaster](https://dwm.suckless.org/patches/centeredmaster/) - Centered master layout
 - [dragmfact](https://dwm.suckless.org/patches/dragmfact/) - Resize the split in the tile layout (i.e. modify mfact) by holding the modkey and dragging the mouse
+- [focusonnetactive](https://dwm.suckless.org/patches/focusonnetactive/)
 - [movestack](https://dwm.suckless.org/patches/movestack/) - Shift the position of clients in the stack.
 - [pertag](https://dwm.suckless.org/patches/pertag/) - Set layouts and facts per tag rather than on every tag
 - [rmaster](https://dwm.suckless.org/patches/rmaster/) - Press Mod+r to swap side of M window.
