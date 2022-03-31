@@ -89,7 +89,6 @@ static const char *termcmd[] = { "alacritty", NULL };
 static const char *ssRect[] = { "bash", "-c", "maim -s | xclip -selection clipboard -t image/png", NULL };
 
 #include "movestack.c"
-#include "selfrestart.c"
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = roficmd } },
@@ -136,7 +135,6 @@ static Key keys[] = {
 	TAGKEYS(                        XK_7,                      6)
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
-	{ MODKEY|ShiftMask,             XK_r,      self_restart,   {0} },
 	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },
 	{ 0,                            XK_Print,  spawn,          {.v = ssRect} },
 };
