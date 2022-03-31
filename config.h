@@ -82,7 +82,8 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { NULL }; 
 
 static const char *roficmd[] = { "rofi", "-show", "combi", NULL };
-static const char *termcmd[]  = { "alacritty", NULL };
+static const char *rofiwin[] = { "rofi", "-show", "window", NULL };
+static const char *termcmd[] = { "alacritty", NULL };
 
 /* misc */
 static const char *ssRect[] = { "bash", "-c", "maim -s | xclip -selection clipboard -t image/png", NULL };
@@ -92,6 +93,7 @@ static const char *ssRect[] = { "bash", "-c", "maim -s | xclip -selection clipbo
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = roficmd } },
+    { MODKEY,                       XK_w,      spawn,          {.v = rofiwin } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
