@@ -54,7 +54,7 @@
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
-                               * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
+				   * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
@@ -80,13 +80,13 @@
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
 enum { SchemeNorm, SchemeSel }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
-       NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
-       NetWMFullscreen, NetActiveWindow, NetWMWindowType,
-       NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
+	NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
+	NetWMFullscreen, NetActiveWindow, NetWMWindowType,
+	NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
 enum { Manager, Xembed, XembedInfo, XLast }; /* Xembed atoms */
 enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
-       ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
+	ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
 
 typedef union {
 	int i;
@@ -741,9 +741,9 @@ clientmessage(XEvent *e)
 			const Arg a = {.ui = 1 << i};
 			selmon = c->mon;
 			view(&a);
-            c->isfixed = 1; // Try to avoid tripping swapfocus prevclient
+	     c->isfixed = 1; // Try to avoid tripping swapfocus prevclient
 			focus(c);
-            c->isfixed = 0; // Try to avoid tripping swapfocus prevclient
+	     c->isfixed = 0; // Try to avoid tripping swapfocus prevclient
 			restack(selmon);
 		}
 	}
@@ -1072,7 +1072,7 @@ focus(Client *c)
 {
 	if (!c || !ISVISIBLE(c)) {
 		for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext){};
-        unfocus(selmon->sel, 0, 0);
+	 unfocus(selmon->sel, 0, 0);
     } else {
 		unfocus(selmon->sel, 0, 1);
     }
@@ -1573,7 +1573,7 @@ propertynotify(XEvent *e)
 		updatesystray();
 	}
 
-    if ((ev->window == root) && (ev->atom == XA_WM_NAME))
+	if ((ev->window == root) && (ev->atom == XA_WM_NAME))
 		updatestatus();
 	else if (ev->state == PropertyDelete)
 		return; /* ignore */
@@ -1993,7 +1993,7 @@ setup(void)
 	netatom[NetSystemTrayOP] = XInternAtom(dpy, "_NET_SYSTEM_TRAY_OPCODE", False);
 	netatom[NetSystemTrayOrientation] = XInternAtom(dpy, "_NET_SYSTEM_TRAY_ORIENTATION", False);
 	netatom[NetSystemTrayOrientationHorz] = XInternAtom(dpy, "_NET_SYSTEM_TRAY_ORIENTATION_HORZ", False);
-    netatom[NetWMName] = XInternAtom(dpy, "_NET_WM_NAME", False);
+	netatom[NetWMName] = XInternAtom(dpy, "_NET_WM_NAME", False);
 	netatom[NetWMState] = XInternAtom(dpy, "_NET_WM_STATE", False);
 	netatom[NetWMCheck] = XInternAtom(dpy, "_NET_SUPPORTING_WM_CHECK", False);
 	netatom[NetWMFullscreen] = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
@@ -2003,7 +2003,7 @@ setup(void)
 	xatom[Manager] = XInternAtom(dpy, "MANAGER", False);
 	xatom[Xembed] = XInternAtom(dpy, "_XEMBED", False);
 	xatom[XembedInfo] = XInternAtom(dpy, "_XEMBED_INFO", False);
-    /* init cursors */
+	/* init cursors */
 	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
 	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
 	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
@@ -2112,13 +2112,13 @@ spawn(const Arg *arg)
 void
 swapfocus()
 {
-	Client *c;
-    Client *prevclient = selmon->pertag->prevclient[selmon->pertag->curtag];
-    if (!prevclient)
-        return;
+	Client *prevclient = selmon->pertag->prevclient[selmon->pertag->curtag];
+	if (!prevclient)
+		return;
 
+	Client *c;
 	for(c = selmon->clients; c && c != prevclient; c = c->next) ;
-	if(c == prevclient) {
+	if(c == prevclient) { // TODO swap to master if prevclient no longer exists?
 		focus(prevclient);
 		restack(prevclient->mon);
 	}
@@ -2291,7 +2291,7 @@ unfocus(Client *c, int setfocus, int setprev)
 		return;
 
     if (setprev && !c->isfixed) { 
-        selmon->pertag->prevclient[selmon->pertag->curtag] = c;
+	 selmon->pertag->prevclient[selmon->pertag->curtag] = c;
     }
 	grabbuttons(c, 0);
 	XSetWindowBorder(dpy, c->win, scheme[SchemeNorm][ColBorder].pixel);
@@ -2775,18 +2775,18 @@ winpid(Window w)
 #endif /* __linux__ */
 
 #ifdef __OpenBSD__
-        Atom type;
-        int format;
-        unsigned long len, bytes;
-        unsigned char *prop;
-        pid_t ret;
+	 Atom type;
+	 int format;
+	 unsigned long len, bytes;
+	 unsigned char *prop;
+	 pid_t ret;
 
-        if (XGetWindowProperty(dpy, w, XInternAtom(dpy, "_NET_WM_PID", 0), 0, 1, False, AnyPropertyType, &type, &format, &len, &bytes, &prop) != Success || !prop)
-               return 0;
+	 if (XGetWindowProperty(dpy, w, XInternAtom(dpy, "_NET_WM_PID", 0), 0, 1, False, AnyPropertyType, &type, &format, &len, &bytes, &prop) != Success || !prop)
+		 return 0;
 
-        ret = *(pid_t*)prop;
-        XFree(prop);
-        result = ret;
+	 ret = *(pid_t*)prop;
+	 XFree(prop);
+	 result = ret;
 
 #endif /* __OpenBSD__ */
 	return result;
@@ -3143,17 +3143,17 @@ centeredmaster(Monitor *m)
 			h = (m->wh - ety) * (c->cfact / lfacts);
 			if(m->nmaster == 0)
 				resize(c, m->wx, m->wy + ety, tw - 2*c->bw,
-			       h - 2*c->bw, 0);
+				h - 2*c->bw, 0);
 			else
 				resize(c, m->wx, m->wy + ety, tw - 2*c->bw,
-			       h - 2*c->bw, 0);
+				h - 2*c->bw, 0);
 			if(ety + HEIGHT(c) < m->mh)
 				ety += HEIGHT(c);
 			lfacts -= c->cfact;
 		} else {
 			h = (m->wh - oty) * (c->cfact / rfacts);
 			resize(c, m->wx + mx + mw, m->wy + oty,
-			       tw - 2*c->bw, h - 2*c->bw, 0);
+				tw - 2*c->bw, h - 2*c->bw, 0);
 			if(oty + HEIGHT(c) < m->mh)
 				oty += HEIGHT(c);
 			rfacts -= c->cfact;
@@ -3209,7 +3209,7 @@ centeredfloatingmaster(Monitor *m)
 		 * of the screen */
 		w = (mw + mxo - mx) * (c->cfact / mfacts);
 		resize(c, m->wx + mx, m->wy + my, w - 2*c->bw,
-		       mh - 2*c->bw, 0);
+			mh - 2*c->bw, 0);
 		if(mx + WIDTH(c) < m->mw)
 			mx += WIDTH(c);
 		mfacts -= c->cfact; 
@@ -3217,7 +3217,7 @@ centeredfloatingmaster(Monitor *m)
 		/* stack clients are stacked horizontally */
 		w = (m->ww - tx) * (c->cfact / sfacts);
 		resize(c, m->wx + tx, m->wy, w - 2*c->bw,
-		       m->wh - 2*c->bw, 0);
+			m->wh - 2*c->bw, 0);
 		if(tx + WIDTH(c) < m->mw)
 			tx += WIDTH(c);
 		sfacts -= c->cfact;
