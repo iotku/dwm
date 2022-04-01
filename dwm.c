@@ -261,7 +261,7 @@ static void togglermaster(const Arg *arg);
 static void togglefullscr(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
-static void unfocus(Client *c, int setfocus);
+static void unfocus(Client *c, int setfocus, int setprev);
 static void unmanage(Client *c, int destroyed);
 static void unmapnotify(XEvent *e);
 static void updatebarpos(Monitor *m);
@@ -296,7 +296,6 @@ static pid_t winpid(Window w);
 
 /* variables */
 static Systray *systray = NULL;
-static Client *prevclient = NULL;
 static const char broken[] = "broken";
 static char stext[256];
 static int statusw;
@@ -346,6 +345,7 @@ struct Pertag {
 	unsigned int sellts[LENGTH(tags) + 1]; /* selected layouts */
 	const Layout *ltidxs[LENGTH(tags) + 1][2]; /* matrix of tags and layouts indexes  */
 	int showbars[LENGTH(tags) + 1]; /* display bar for the current tag */
+    Client *prevclient[LENGTH(tags) + 1];
 };
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
@@ -561,7 +561,7 @@ buttonpress(XEvent *e)
 	click = ClkRootWin;
 	/* focus monitor if necessary */
 	if ((m = wintomon(ev->window)) && m != selmon) {
-		unfocus(selmon->sel, 1);
+		unfocus(selmon->sel, 1, 1);
 		selmon = m;
 		focus(NULL);
 	}
@@ -1045,7 +1045,7 @@ enternotify(XEvent *e)
 	c = wintoclient(ev->window);
 	m = c ? c->mon : wintomon(ev->window);
 	if (m != selmon) {
-		unfocus(selmon->sel, 1);
+		unfocus(selmon->sel, 1, 1);
 		selmon = m;
 	} else if (!c || c == selmon->sel)
 		return;
@@ -1068,10 +1068,12 @@ expose(XEvent *e)
 void
 focus(Client *c)
 {
-	if (!c || !ISVISIBLE(c))
-		for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
-	if (selmon->sel && selmon->sel != c)
-		unfocus(selmon->sel, 0);
+	if (!c || !ISVISIBLE(c)) {
+		for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext){};
+        unfocus(selmon->sel, 0, 0);
+    } else {
+		unfocus(selmon->sel, 0, 1);
+    }
 	if (c) {
 		if (c->mon != selmon)
 			selmon = c->mon;
@@ -1109,7 +1111,7 @@ focusmon(const Arg *arg)
 		return;
 	if ((m = dirtomon(arg->i)) == selmon)
 		return;
-	unfocus(selmon->sel, 0);
+	unfocus(selmon->sel, 0, 0);
 	selmon = m;
 	focus(NULL);
 	if (selmon->sel)
@@ -1403,7 +1405,7 @@ manage(Window w, XWindowAttributes *wa)
 	XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
 	setclientstate(c, NormalState);
 	if (c->mon == selmon)
-		unfocus(selmon->sel, 0);
+		unfocus(selmon->sel, 0, 1);
 	c->mon->sel = c;
 	arrange(c->mon);
 	XMapWindow(dpy, c->win);
@@ -1468,7 +1470,7 @@ motionnotify(XEvent *e)
 	if (ev->window != root)
 		return;
 	if ((m = recttomon(ev->x_root, ev->y_root, 1, 1)) != mon && mon) {
-		unfocus(selmon->sel, 1);
+		unfocus(selmon->sel, 1, 1);
 		selmon = m;
 		focus(NULL);
 	}
@@ -1814,7 +1816,7 @@ sendmon(Client *c, Monitor *m)
 {
 	if (c->mon == m)
 		return;
-	unfocus(c, 1);
+	unfocus(c, 1, 0); // TODO test this, setprev didn't use to cause an issue?
 	detach(c);
 	detachstack(c);
 	c->mon = m;
@@ -2109,6 +2111,10 @@ void
 swapfocus()
 {
 	Client *c;
+    Client *prevclient = selmon->pertag->prevclient[selmon->pertag->curtag];
+    if (!prevclient)
+        return;
+
 	for(c = selmon->clients; c && c != prevclient; c = c->next) ;
 	if(c == prevclient) {
 		focus(prevclient);
@@ -2277,11 +2283,14 @@ toggleview(const Arg *arg)
 }
 
 void
-unfocus(Client *c, int setfocus)
+unfocus(Client *c, int setfocus, int setprev)
 {
 	if (!c)
 		return;
-	prevclient = c;
+
+    if (setprev) {
+        selmon->pertag->prevclient[selmon->pertag->curtag] = c;
+    }
 	grabbuttons(c, 0);
 	XSetWindowBorder(dpy, c->win, scheme[SchemeNorm][ColBorder].pixel);
 	if (setfocus) {
@@ -2993,6 +3002,7 @@ void
 zoom(const Arg *arg)
 {
 	Client *c = selmon->sel;
+    Client *prevclient = selmon->pertag->prevclient[selmon->pertag->curtag];
 	prevclient = nexttiled(selmon->clients);
 
 	if (!selmon->lt[selmon->sellt]->arrange
