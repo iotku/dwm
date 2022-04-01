@@ -3014,7 +3014,9 @@ zoom(const Arg *arg)
 	if (c == nexttiled(selmon->clients))
 		if (!c || !(c = prevclient = nexttiled(c->next)))
 			return;
+    c->isfixed = 1; // swapfocus workaround
 	pop(c);
+    c->isfixed = 0; // swapfocus workaround
 }
 
 int
