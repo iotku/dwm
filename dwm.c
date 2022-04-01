@@ -561,7 +561,7 @@ buttonpress(XEvent *e)
 	click = ClkRootWin;
 	/* focus monitor if necessary */
 	if ((m = wintomon(ev->window)) && m != selmon) {
-		unfocus(selmon->sel, 1, 1);
+		unfocus(selmon->sel, 1, 0);
 		selmon = m;
 		focus(NULL);
 	}
@@ -741,7 +741,9 @@ clientmessage(XEvent *e)
 			const Arg a = {.ui = 1 << i};
 			selmon = c->mon;
 			view(&a);
+            c->isfixed = 1; // Try to avoid tripping swapfocus prevclient
 			focus(c);
+            c->isfixed = 0; // Try to avoid tripping swapfocus prevclient
 			restack(selmon);
 		}
 	}
@@ -1045,7 +1047,7 @@ enternotify(XEvent *e)
 	c = wintoclient(ev->window);
 	m = c ? c->mon : wintomon(ev->window);
 	if (m != selmon) {
-		unfocus(selmon->sel, 1, 1);
+		unfocus(selmon->sel, 1, 0);
 		selmon = m;
 	} else if (!c || c == selmon->sel)
 		return;
@@ -2288,7 +2290,7 @@ unfocus(Client *c, int setfocus, int setprev)
 	if (!c)
 		return;
 
-    if (setprev) {
+    if (setprev && !c->isfixed) { 
         selmon->pertag->prevclient[selmon->pertag->curtag] = c;
     }
 	grabbuttons(c, 0);
