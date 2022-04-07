@@ -201,7 +201,7 @@ static void drawbar(Monitor *m);
 static void drawbars(void);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
-static void focus(Client *c);
+static void focus(Client *c, int setPrev);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
@@ -544,7 +544,7 @@ unswallow(Client *c)
 	XMapWindow(dpy, c->win);
 	XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
 	setclientstate(c, NormalState);
-	focus(NULL);
+	focus(NULL, 0);
 	arrange(c->mon);
 }
 
@@ -563,7 +563,7 @@ buttonpress(XEvent *e)
 	if ((m = wintomon(ev->window)) && m != selmon) {
 		unfocus(selmon->sel, 1, 0);
 		selmon = m;
-		focus(NULL);
+		focus(NULL, 0);
 	}
 	if (ev->window == selmon->barwin) {
 		i = x = 0;
@@ -600,7 +600,7 @@ buttonpress(XEvent *e)
 		} else
 			click = ClkWinTitle;
 	} else if ((c = wintoclient(ev->window))) {
-		focus(c);
+		focus(c, 1);
 		restack(selmon);
 		XAllowEvents(dpy, ReplayPointer, CurrentTime);
 		click = ClkClientWin;
@@ -742,9 +742,7 @@ clientmessage(XEvent *e)
 			const Arg a = {.ui = 1 << i};
 			selmon = c->mon;
 			view(&a);
-	     c->isfixed = 1; // Try to avoid tripping swapfocus prevclient
-			focus(c);
-	     c->isfixed = 0; // Try to avoid tripping swapfocus prevclient
+			focus(c, 0);
 			restack(selmon);
 		}
 	}
@@ -791,7 +789,7 @@ configurenotify(XEvent *e)
 						resizeclient(c, m->mx, m->my, m->mw, m->mh);
 				resizebarwin(m);
 			}
-			focus(NULL);
+			focus(NULL, 0);
 			arrange(NULL);
 		}
 	}
@@ -1050,9 +1048,11 @@ enternotify(XEvent *e)
 	if (m != selmon) {
 		unfocus(selmon->sel, 1, 0);
 		selmon = m;
+		focus(c, 0);
+		return;
 	} else if (!c || c == selmon->sel)
 		return;
-	focus(c);
+	focus(c, 1);
 }
 
 void
@@ -1069,11 +1069,11 @@ expose(XEvent *e)
 }
 
 void
-focus(Client *c)
+focus(Client *c, int setPrev)
 {
-	if (!c || !ISVISIBLE(c)) {
+	if (!c || !ISVISIBLE(c) || !setPrev) {
 		for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext){};
-	 unfocus(selmon->sel, 0, 0);
+		unfocus(selmon->sel, 0, 0);
     } else {
 		unfocus(selmon->sel, 0, 1);
     }
@@ -1116,7 +1116,7 @@ focusmon(const Arg *arg)
 		return;
 	unfocus(selmon->sel, 0, 0);
 	selmon = m;
-	focus(NULL);
+	focus(NULL, 0);
 	if (selmon->sel)
 		XWarpPointer(dpy, None, selmon->sel->win, 0, 0, 0, 0, selmon->sel->w/2, selmon->sel->h/2);
 }
@@ -1142,7 +1142,7 @@ focusstack(const Arg *arg)
 					c = i;
 	}
 	if (c) {
-		focus(c);
+		focus(c, 1);
 		restack(selmon);
 		XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
 	}
@@ -1414,7 +1414,7 @@ manage(Window w, XWindowAttributes *wa)
 	XMapWindow(dpy, c->win);
 	if (term)
 		swallow(term, c);
-	focus(NULL);
+	focus(NULL, 0);
 }
 
 void
@@ -1475,7 +1475,7 @@ motionnotify(XEvent *e)
 	if ((m = recttomon(ev->x_root, ev->y_root, 1, 1)) != mon && mon) {
 		unfocus(selmon->sel, 1, 1);
 		selmon = m;
-		focus(NULL);
+		focus(NULL, 0);
 	}
 	mon = m;
 }
@@ -1536,7 +1536,7 @@ movemouse(const Arg *arg)
 	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
 		sendmon(c, m);
 		selmon = m;
-		focus(NULL);
+		focus(NULL, 0);
 	}
 }
 
@@ -1552,7 +1552,7 @@ pop(Client *c)
 {
 	detach(c);
 	attach(c);
-	focus(c);
+	focus(c, 1);
 	arrange(c->mon);
 }
 
@@ -1734,7 +1734,7 @@ resizemouse(const Arg *arg)
 	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
 		sendmon(c, m);
 		selmon = m;
-		focus(NULL);
+		focus(NULL, 0);
 	}
 }
 
@@ -1826,7 +1826,7 @@ sendmon(Client *c, Monitor *m)
 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
 	attachbottom(c);
 	attachstack(c);
-	focus(NULL);
+	focus(NULL, 0);
 	arrange(NULL);
 }
 
@@ -2037,7 +2037,7 @@ setup(void)
 	XChangeWindowAttributes(dpy, root, CWEventMask|CWCursor, &wa);
 	XSelectInput(dpy, root, wa.event_mask);
 	grabkeys();
-	focus(NULL);
+	focus(NULL, 0);
 }
 
 
@@ -2120,7 +2120,7 @@ swapfocus()
 	Client *c;
 	for(c = selmon->clients; c && c != prevclient; c = c->next) ;
 	if(c == prevclient) { // TODO swap to master if prevclient no longer exists?
-		focus(prevclient);
+		focus(prevclient, 1);
 		restack(prevclient->mon);
 	}
 }
@@ -2130,7 +2130,7 @@ tag(const Arg *arg)
 {
 	if (selmon->sel && arg->ui & TAGMASK) {
 		selmon->sel->tags = arg->ui & TAGMASK;
-		focus(NULL);
+		focus(NULL, 0);
 		arrange(selmon);
 	}
 }
@@ -2244,7 +2244,7 @@ toggletag(const Arg *arg)
 	newtags = selmon->sel->tags ^ (arg->ui & TAGMASK);
 	if (newtags) {
 		selmon->sel->tags = newtags;
-		focus(NULL);
+		focus(NULL, 0);
 		arrange(selmon);
 	}
 }
@@ -2280,7 +2280,7 @@ toggleview(const Arg *arg)
 		if (selmon->showbar != selmon->pertag->showbars[selmon->pertag->curtag])
 			togglebar(NULL);
 
-		focus(NULL);
+		focus(NULL, 0);
 		arrange(selmon);
 	}
 }
@@ -2318,7 +2318,7 @@ unmanage(Client *c, int destroyed)
 		free(s->swallowing);
 		s->swallowing = NULL;
 		arrange(m);
-		focus(NULL);
+		focus(NULL, 0);
 		return;
 	}
 
@@ -2339,7 +2339,7 @@ unmanage(Client *c, int destroyed)
 
 	if (!s) {
 		arrange(m);
-		focus(NULL);
+		focus(NULL, 0);
 		updateclientlist();
 	}
 }
@@ -2905,7 +2905,7 @@ view(const Arg *arg)
 		togglebar(NULL);
 
 
-	focus(NULL);
+	focus(NULL, 0);
 	arrange(selmon);
 }
 
