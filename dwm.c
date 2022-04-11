@@ -2117,12 +2117,26 @@ swapfocus()
 	if (!prevclient)
 		return;
 
-	Client *c;
-	for(c = selmon->clients; c && c != prevclient; c = c->next) ;
-	if(c == prevclient) { // TODO swap to master if prevclient no longer exists?
-		focus(prevclient, 1);
-		restack(prevclient->mon);
+	Client *c = NULL, *i = NULL;
+	if (prevclient == selmon->sel) {
+		/* find the client before selmon->sel */
+		for(i = selmon->clients; i != selmon->sel; i = i->next)
+			if(ISVISIBLE(i) && !i->isfloating)
+				c = i;
+		if(!c)
+			for(; i; i = i->next)
+				if(ISVISIBLE(i) && !i->isfloating)
+					c = i;
+	} else {
+		for(c = selmon->clients; c && c != prevclient; c = c->next) ;
 	}
+
+	if (!c) {
+		return;
+	}
+
+	focus(c, 1);
+	restack(c->mon);
 }
 
 void
