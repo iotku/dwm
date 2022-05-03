@@ -222,10 +222,8 @@ static void maprequest(XEvent *e);
 static void monocle(Monitor *m);
 static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
-static unsigned int nexttag(void);
 static Client *nexttiled(Client *c);
 static void pop(Client *);
-static unsigned int prevtag(void);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
 static Monitor *recttomon(int x, int y, int w, int h);
@@ -280,8 +278,6 @@ static void updatetitle(Client *c);
 static void updatewindowtype(Client *c);
 static void updatewmhints(Client *c);
 static void view(const Arg *arg);
-static void viewnext(const Arg *arg);
-static void viewprev(const Arg *arg);
 static Client *wintoclient(Window w);
 static Monitor *wintomon(Window w);
 static Client *wintosystrayicon(Window w);
@@ -1544,29 +1540,6 @@ movemouse(const Arg *arg)
 	}
 }
 
-unsigned int
-nexttag(void)
-{
-	unsigned int seltag = selmon->tagset[selmon->seltags];
-	unsigned int usedtags = 0;
-	Client *c = selmon->clients;
-
-	if (!c)
-		return seltag;
-
-	/* skip vacant tags */
-	do {
-		usedtags |= c->tags;
-		c = c->next;
-	} while (c);
-
-	do {
-		seltag = seltag == (1 << (LENGTH(tags) - 1)) ? 1 : seltag << 1;
-	} while (!(seltag & usedtags));
-
-	return seltag;
-}
-
 Client *
 nexttiled(Client *c)
 {
@@ -1581,28 +1554,6 @@ pop(Client *c)
 	attach(c);
 	focus(c, 1);
 	arrange(c->mon);
-}
-
-unsigned int
-prevtag(void)
-{
-	unsigned int seltag = selmon->tagset[selmon->seltags];
-	unsigned int usedtags = 0;
-	Client *c = selmon->clients;
-	if (!c)
-		return seltag;
-
-	/* skip vacant tags */
-	do {
-		usedtags |= c->tags;
-		c = c->next;
-	} while (c);
-
-	do {
-		seltag = seltag == 1 ? (1 << (LENGTH(tags) - 1)) : seltag >> 1;
-	} while (!(seltag & usedtags));
-
-	return seltag;
 }
 
 void
@@ -2972,18 +2923,6 @@ view(const Arg *arg)
 	arrange(selmon);
 }
 
-void
-viewnext(const Arg *arg)
-{
-	view(&(const Arg){.ui = nexttag()});
-}
-
-void
-viewprev(const Arg *arg)
-{
-	view(&(const Arg){.ui = prevtag()});
-}
- 
 Client *
 wintoclient(Window w)
 {
