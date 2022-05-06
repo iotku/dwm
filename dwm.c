@@ -341,6 +341,7 @@ static xcb_connection_t *xcon;
 struct Pertag {
 	unsigned int curtag, prevtag; /* current and previous tag */
 	int nmasters[LENGTH(tags) + 1]; /* number of windows in master area */
+	int rmasters[LENGTH(tags) + 1];
 	float mfacts[LENGTH(tags) + 1]; /* mfacts per tag */
 	unsigned int sellts[LENGTH(tags) + 1]; /* selected layouts */
 	const Layout *ltidxs[LENGTH(tags) + 1][2]; /* matrix of tags and layouts indexes  */
@@ -869,6 +870,7 @@ createmon(void)
 	for (i = 0; i <= LENGTH(tags); i++) {
 		m->pertag->nmasters[i] = m->nmaster;
 		m->pertag->mfacts[i] = m->mfact;
+		m->pertag->rmasters[i] = m->rmaster;
 
 		m->pertag->ltidxs[i][0] = m->lt[0];
 		m->pertag->ltidxs[i][1] = m->lt[1];
@@ -2175,21 +2177,21 @@ tile(Monitor *m)
 
 	if (n > m->nmaster)
 		mw = m->nmaster
-		? m->ww * (m->rmaster ? 1.0 - m->mfact : m->mfact)
+		? m->ww * (m->pertag->rmasters[selmon->pertag->curtag] ? 1.0 - m->mfact : m->mfact)
 		: 0;
 	else
 		mw = m->ww;
 	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			h = (m->wh - my) * (c->cfact / mfacts);
-			resize(c, m->rmaster ? m->wx + m->ww - mw : m->wx,
+			resize(c, m->pertag->rmasters[selmon->pertag->curtag] ? m->wx + m->ww - mw : m->wx,
 			m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
 				my += HEIGHT(c);
 		mfacts -= c->cfact;
 		} else {
 			h = (m->wh - ty) * (c->cfact / sfacts);
-			resize(c, m->rmaster ? m->wx : m->wx + mw, m->wy + ty,
+			resize(c, m->pertag->rmasters[selmon->pertag->curtag] ? m->wx : m->wx + mw, m->wy + ty,
 			m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c);
@@ -2241,7 +2243,7 @@ togglefullscr(const Arg *arg)
 void
 togglermaster(const Arg *arg)
 {
-	selmon->rmaster = !selmon->rmaster;
+	selmon->pertag->rmasters[selmon->pertag->curtag] = !selmon->pertag->rmasters[selmon->pertag->curtag];
 	/* now mfact represents the left factor */
 	selmon->mfact = 1.0 - selmon->mfact;
 	if (selmon->lt[selmon->sellt]->arrange)
@@ -2271,26 +2273,26 @@ toggleview(const Arg *arg)
 
 	if (newtagset) {
 		selmon->tagset[selmon->seltags] = newtagset;
-		
+
 		if (newtagset == ~0) {
 			selmon->pertag->prevtag = selmon->pertag->curtag;
 			selmon->pertag->curtag = 0;
 		}
-		
+
 		/* test if the user did not select the same tag */
 		if (!(newtagset & 1 << (selmon->pertag->curtag - 1))) {
 			selmon->pertag->prevtag = selmon->pertag->curtag;
 			for (i = 0; !(newtagset & 1 << i); i++) ;
 			selmon->pertag->curtag = i + 1;
 		}
-		
+
 		/* apply settings for this view */
 		selmon->nmaster = selmon->pertag->nmasters[selmon->pertag->curtag];
 		selmon->mfact = selmon->pertag->mfacts[selmon->pertag->curtag];
 		selmon->sellt = selmon->pertag->sellts[selmon->pertag->curtag];
 		selmon->lt[selmon->sellt] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt];
 		selmon->lt[selmon->sellt^1] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt^1];
-		
+
 		if (selmon->showbar != selmon->pertag->showbars[selmon->pertag->curtag])
 			togglebar(NULL);
 
@@ -2305,7 +2307,7 @@ unfocus(Client *c, int setfocus, int setprev)
 	if (!c)
 		return;
 
-    if (setprev && !c->isfixed) { 
+    if (setprev && !c->isfixed) {
 	 selmon->pertag->prevclient[selmon->pertag->curtag] = c;
     }
 	grabbuttons(c, 0);
@@ -3229,7 +3231,7 @@ centeredfloatingmaster(Monitor *m)
 			mh - 2*c->bw, 0);
 		if(mx + WIDTH(c) < m->mw)
 			mx += WIDTH(c);
-		mfacts -= c->cfact; 
+		mfacts -= c->cfact;
 	} else {
 		/* stack clients are stacked horizontally */
 		w = (m->ww - tx) * (c->cfact / sfacts);
