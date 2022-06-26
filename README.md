@@ -7,7 +7,6 @@ iotku's DWM Build
 Patches
 -------
 - [actualfullscreen](https://dwm.suckless.org/patches/actualfullscreen/) - Mod+f to properly fullscreen window
-- [attachbottom](https://dwm.suckless.org/patches/attachbottom/) - New clients attach at the bottom of the stack instead of the top. (M Window doesn't move and others resize)
 - [cfacts](https://dwm.suckless.org/patches/cfacts/) - Resize clients in the stack and assorted cfacts aware layouts
 - [centeredmaster](https://dwm.suckless.org/patches/centeredmaster/) - Centered master layout
 - [dragmfact](https://dwm.suckless.org/patches/dragmfact/) - Resize the split in the tile layout (i.e. modify mfact) by holding the modkey and dragging the mouse

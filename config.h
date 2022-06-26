@@ -12,7 +12,7 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;        /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 0;        /* 0 means bottom bar */
-static const char *fonts[]          = { "JetBrainsMonoMedium Nerd Font:size=10", "Noto Color Emoji:pixelsize=10:antialias=true:autohint=true", "Font Awesome 6 Free:size=10" };
+static const char *fonts[]          = { "Hack Nerd Font:size=10", "Noto Color Emoji:pixelsize=10:antialias=true:autohint=true", "Font Awesome 6 Free:size=10" };
 
 static const char color_fg[] = "#a9b1d6";
 static const char color_fg_selected[] = "#bb9af5";
@@ -48,7 +48,7 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.75; /* factor of master area size [0.05..0.95] */
+static const float mfact     = 0.65; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -76,11 +76,11 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 #define STATUSBAR "dwmblocks"
-	
+
 /* commands */
 // Note: Even though we're using rofi now we can't remove these as dwm will fail to compile and I don't feel like patching it out
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { NULL }; 
+static const char *dmenucmd[] = { NULL };
 
 static const char *roficmd[] = { "rofi", "-show", "combi", NULL };
 static const char *rofiwin[] = { "rofi", "-show", "window", NULL };
