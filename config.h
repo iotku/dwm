@@ -27,6 +27,12 @@ static const char *colors[][3] = {
 	[SchemeSel] = {color_fg_selected, color_bg_selected, color_border_selected},
 };
 
+static const char *const autostart[] = {
+	"dunst", NULL,
+	"dwmblocks", NULL,
+	NULL /* terminate */
+};
+
 /* tagging */
 static const char *tags[] = { "", "", "", "", "5", "6", "7", "8", "Junk" };
 
